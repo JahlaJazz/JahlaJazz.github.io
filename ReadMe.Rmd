@@ -1,0 +1,25 @@
+# Shiny Application and Reproducible Pitch
+
+## Summary of the shiny application
+
+This application represents a front-end user interface, for prediction, using a random forest model and specifying the following items
+
+   1. The percentage to use in creating the training dataset
+   2. The predictor to use in the regression model
+   3. The n-fold cross-validation and the depth of the tree
+
+
+## Information on links to view 
+
+The presentation is located here: http://rpubs.com/JahlaJazz/222947
+
+The shiny application is located here: https://jahlajazz.shinyapps.io/ShinyFolder/
+
+The source code is located here: https://github.com/JahlaJazz/JahlaJazz.github.io
+
+Note: The source code has the following folders
+
+   1. PresentationFolder and
+   2. ShinyFolder
+
+   
