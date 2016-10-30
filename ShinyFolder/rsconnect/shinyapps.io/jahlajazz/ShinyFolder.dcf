@@ -1,0 +1,11 @@
+name: ShinyFolder
+title:
+account: jahlajazz
+server: shinyapps.io
+appId: 134732
+bundleId: 600751
+url: https://jahlajazz.shinyapps.io/ShinyFolder/
+when: 1477854859.54604
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: wapp.R
