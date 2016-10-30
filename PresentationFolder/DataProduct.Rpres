@@ -1,0 +1,102 @@
+Shiny Application and Reproducible Pitch
+========================================================
+author: JahlaJazz
+date: October 30, 1916
+autosize: true
+
+
+Excuetive Summary
+========================================================
+
+The purpose of this presentation, is to create a front-end application for "what-if-analysis".
+We are going to revisit the dataset, provided in the Practical Machine Learning course and use a  random forest model to fit the data. In this approach the following parameters will serve as front-end input items
+
+  1. Select the percentage to use, in creating the training and testing datasets. These datasets will be used for model fitting and parameter tuning
+  2. Select from a list of predictors, the variable to use in the regression model
+  3. Select the number of folds to used for cross-fold validation
+  4. Select the depth of the random forest tree
+
+
+Explanation of the datasets used in this presentation
+========================================================
+
+The focus, of the data, is to predict the manner in which the Unilateral Dumbbell Biceps Curl excercise was performed by a group of six participants, ranging in age from 20 to 28. Each particpants was asked to perform the excercise in five different ways, while wearing electronic devices designed to record various measurements, of the activity. Following is a listing of the ways in which the excercise was performed, of which only the first, is viewed as correct.
+
+  * classe A: exactly according to specification (ie, the correct way to do a curl)
+  * classe B: throwing the elbows to the front
+  * classe C: lifting the dumbbell only halfway
+  * classe D: lowering the dumbbell only halfway
+  * classe E: throwing the hips to the front
+  
+The results from the electronic readings and "classe" (the target variable) was recorded and a data set of 19,622 samples with 160 variable was used as the starting point for creating a model. According to the instruction, any combination of variable can be used to create the model and must be validated against another dataset of 20 samples, from which the "classe" variable is to be assigned, based upon the variables for each sample.
+
+
+
+Outputs reflected in the shiny application
+========================================================
+ 
+Given the input items, specified by the user, show the following items:
+
+    1. Summary information on the fitted model
+    2. A visual representation of the relationship between the number of predictors and accuracy
+    3. The relative importance of the selected predictors
+    4. Confusion Matrix and Statistics
+    5. Testing the model against the validation dataset 
+    
+Following is a summary of my input assumptions
+========================================================
+
+1. The initial dataset, before any adustment, was 19,622 samples with 160 variable
+2. After adjustments for tidiness, the origianl dataset was reduced to 53 variable
+3. The percentage used for creating the training dataset was 75%, which resulted 14,718 observation and 53 variable. The testing dataset contained the remaining observation. 
+4. For the random forest method, 5-fold cross validation and a tree depth of 50 was used.
+
+Outputs resulting from input assumptions
+========================================================
+
+The first output is are the predictors used for regression, the second is the fitted model, the third is the confusion matrix and the last are the predictions based on the validation dataset:
+
+```{r, echo = F, cache = T}
+knitr::opts_chunk$set(eval = TRUE, cache = TRUE)
+suppressMessages(library(caret))
+suppressMessages(library(lattice))
+suppressMessages(library(ggplot2))
+suppressMessages(library(randomForest))
+# load initial dataset and make adjustments
+build = read.csv("data/training.csv",stringsAsFactors = F)
+build <- build[,-c(1:7)]
+ind = sapply(build, function(x) x=="#DIV/0!" | x=="")
+build[ind] <- NA 
+colremove <- colSums(sapply(build,is.na))/(dim(build)[1]) > .95
+build <- build[,!colremove]
+build$classe <- as.factor(as.character(build$classe))
+# load validation dataset and make adjustments
+validation = read.csv("data/validation.csv",stringsAsFactors = F)
+validation <- validation[,-c(1:7)]
+ind = sapply(validation, function(x) x=="#DIV/0!" | x=="")
+validation[ind] <- NA
+colremove <- colSums(sapply(validation,is.na))/(dim(validation)[1]) > .95
+validation <- validation[,!colremove]
+validation$problem_id <- as.factor(as.character(validation$problem_id))
+# create training and testing datasets based upon the initail adjusted adatset
+set.seed(6464)
+indext <- createDataPartition(y = build$classe, p = .75, list = F)
+training <- build[indext,]; testing <- build[-indext,] 
+# find regression fit
+set.seed(3498)
+fitControl <- trainControl(method="cv", number = 5) # option for 5-fold cross validation
+fitrf <- train( classe~., data = training, trControl = fitControl, method = "rf", ntree = 50)
+pred <- predict(fitrf, newdata = testing)
+conf <- confusionMatrix(pred, testing$classe)
+predv <- predict(fitrf, newdata = validation)
+resultsv <- data.frame(problem_id = validation$problem_id, predicted = predv)
+names(training)
+fitrf
+conf
+resultsv[,2]
+```
+
+ 
+
+
+
